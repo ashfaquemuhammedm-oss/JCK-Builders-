@@ -1,0 +1,1 @@
+import{d as e}from"./main-B2A4_6Pw.js";document.querySelector("#capabilities").innerHTML=e.map(([a,i,s])=>`<a class="capability" href="services.html"><b>${a}</b><h3>${i}</h3><p>${s}</p><span class="arrow">↗</span></a>`).join("");
