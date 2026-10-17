@@ -34,7 +34,7 @@ export function mountSite() {
     .querySelectorAll("[data-site-header]")
     .forEach(
       (slot) =>
-        (slot.innerHTML = `<header class="site-header"><div class="shell nav-wrap">${mark}<nav class="desktop-nav" aria-label="Primary navigation">${links(page)}</nav><a class="button button--gold nav-cta" href="contact.html">Get a quote</a><button class="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="mobile-nav"><i></i><i></i><i></i></button></div><div class="mobile-panel" id="mobile-nav" aria-hidden="true"><div class="shell mobile-panel__inner">${links(page)}<a class="button button--gold" href="contact.html">Get a quote</a></div></div></header>`),
+        (slot.innerHTML = `<header class="site-header"><div class="shell nav-wrap">${mark}<nav class="desktop-nav" aria-label="Primary navigation">${links(page)}</nav><a class="button button--gold nav-cta" href="contact.html">Get a quote</a><button class="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="mobile-nav"><i></i><i></i><i></i></button></div><div class="mobile-panel" id="mobile-nav" aria-hidden="true"><nav class="shell mobile-panel__inner" aria-label="Mobile navigation">${links(page)}<a class="button button--gold" href="contact.html">Get a quote</a></nav></div></header>`),
     );
   document
     .querySelectorAll("[data-site-footer]")
@@ -57,19 +57,39 @@ function setupNav() {
   const toggle = document.querySelector(".menu-toggle");
   const panel = document.querySelector(".mobile-panel");
   if (!header) return;
+  const setMenuState = (isOpen, { restoreFocus = false } = {}) => {
+    if (!toggle || !panel) return;
+    toggle.setAttribute("aria-expanded", String(isOpen));
+    toggle.setAttribute("aria-label", isOpen ? "Close navigation" : "Open navigation");
+    panel.setAttribute("aria-hidden", String(!isOpen));
+    header.classList.toggle("menu-open", isOpen);
+    document.body.classList.toggle("menu-open", isOpen);
+    if (!isOpen && restoreFocus) {
+      toggle.focus();
+    }
+  };
   const update = () =>
     header.classList.toggle("is-scrolled", window.scrollY > 24);
   update();
   window.addEventListener("scroll", update, { passive: true });
   toggle?.addEventListener("click", () => {
     const open = toggle.getAttribute("aria-expanded") === "true";
-    toggle.setAttribute("aria-expanded", String(!open));
-    panel.setAttribute("aria-hidden", String(open));
-    document.body.classList.toggle("menu-open", !open);
+    setMenuState(!open, { restoreFocus: open });
   });
   panel
     ?.querySelectorAll("a")
-    .forEach((a) => a.addEventListener("click", () => toggle?.click()));
+    .forEach((a) => a.addEventListener("click", () => setMenuState(false)));
+  panel?.addEventListener("click", (event) => {
+    if (event.target === panel) setMenuState(false, { restoreFocus: true });
+  });
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && toggle?.getAttribute("aria-expanded") === "true") {
+      setMenuState(false, { restoreFocus: true });
+    }
+  });
+  window.matchMedia("(min-width: 1025px)").addEventListener("change", (event) => {
+    if (event.matches) setMenuState(false);
+  });
 }
 function setupReveal() {
   const reduceMotion = window.matchMedia(

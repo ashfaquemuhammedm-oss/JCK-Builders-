@@ -27,10 +27,14 @@
 }
 
 html {
+  min-height: 100%;
+
   scroll-behavior: smooth;
 }
 
 body {
+  min-height: 100%;
+
   margin: 0;
 
   background: var(--paper);
@@ -102,6 +106,12 @@ button {
   background: rgba(11, 11, 11, 0.96);
 
   border-bottom: 1px solid rgba(255, 255, 255, 0.13);
+}
+
+.site-header.menu-open {
+  background: rgba(17, 17, 17, 0.98);
+
+  border-bottom: 1px solid rgba(201, 161, 90, 0.34);
 }
 
 .nav-wrap {
@@ -256,6 +266,8 @@ button {
 .menu-toggle {
   display: none;
 
+  color: #ffffff;
+
   background: transparent;
 
   border: 0;
@@ -263,18 +275,50 @@ button {
   padding: 8px;
 
   margin-left: auto;
+
+  transition: color 0.25s ease;
 }
 
 .menu-toggle i {
   display: block;
 
+  flex: 0 0 auto;
+
   width: 24px;
 
-  height: 1px;
+  height: 2px;
 
-  background: currentColor;
+  background: #ffffff;
 
-  margin: 5px;
+  margin: 3px 0;
+
+  border-radius: 1px;
+
+  transform-origin: center;
+
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.22s ease,
+    background-color 0.25s ease;
+}
+
+.menu-toggle:hover i,
+.menu-toggle:focus-visible i {
+  background: var(--gold);
+}
+
+.menu-toggle[aria-expanded="true"] i:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.menu-toggle[aria-expanded="true"] i:nth-child(2) {
+  opacity: 0;
+
+  transform: scaleX(0.5);
+}
+
+.menu-toggle[aria-expanded="true"] i:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
 }
 
 .mobile-panel {
@@ -282,7 +326,10 @@ button {
 }
 
 .hero {
-  min-height: 760px;
+  /* Attach the opening view to the usable viewport instead of a fixed desktop height. */
+  min-height: 100vh;
+
+  min-height: 100svh;
 
   color: #fff;
 
@@ -299,7 +346,10 @@ button {
 }
 
 .hero .shell {
-  padding: 176px 0 82px;
+  /* The lower inset keeps content clear of the fixed scroll cue. */
+  padding: clamp(120px, 17vh, 176px) 0 clamp(80px, 10vh, 112px);
+
+  padding: clamp(120px, 17svh, 176px) 0 clamp(80px, 10svh, 112px);
 }
 
 .eyebrow,
@@ -348,7 +398,7 @@ button {
 
   color: rgba(255, 255, 255, 0.82);
 
-  font-size: 15px;
+  font-size: clamp(13px, 1.6vw, 15px);
 }
 
 .hero-actions {
@@ -1490,7 +1540,7 @@ button {
   transform: none;
 }
 
-@media (max-width: 850px) {
+@media (max-width: 1024px) {
   :root {
     --shell: min(100% - 40px, 1280px);
   }
@@ -1501,7 +1551,13 @@ button {
   }
 
   .menu-toggle {
-    display: block;
+    display: inline-flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
   }
 
   .site-header .brand {
@@ -1519,23 +1575,34 @@ button {
   .mobile-panel {
     display: block;
 
-    position: absolute;
+    position: fixed;
 
-    top: 82px;
+    inset: 82px 0 0;
 
-    left: 0;
+    z-index: 0;
 
-    right: 0;
+    background: rgba(17, 17, 17, 0.985);
 
-    background: var(--ink);
+    border-top: 1px solid rgba(201, 161, 90, 0.38);
+
+    border-left: 1px solid rgba(201, 161, 90, 0.22);
 
     visibility: hidden;
 
     opacity: 0;
 
-    transform: translateY(-10px);
+    pointer-events: none;
 
-    transition: 0.25s;
+    transform: translateX(100%);
+
+    overflow-y: auto;
+
+    overscroll-behavior: contain;
+
+    transition:
+      transform 0.56s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.32s ease,
+      visibility 0s linear 0.56s;
   }
 
   .mobile-panel[aria-hidden="false"] {
@@ -1543,11 +1610,17 @@ button {
 
     opacity: 1;
 
+    pointer-events: auto;
+
     transform: none;
+
+    transition-delay: 0s;
   }
 
   .mobile-panel__inner {
-    padding: 20px 0 30px;
+    min-height: 100%;
+
+    padding: clamp(42px, 8svh, 76px) 0 42px;
 
     display: flex;
 
@@ -1555,19 +1628,152 @@ button {
 
     align-items: flex-start;
 
-    gap: 18px;
+    gap: 7px;
   }
 
   .mobile-panel a:not(.button) {
-    font: 400 24px var(--serif);
+    position: relative;
+
+    width: 100%;
+
+    min-height: 48px;
+
+    display: flex;
+
+    align-items: center;
+
+    padding: 7px 0;
+
+    color: var(--white);
+
+    font: 400 clamp(27px, 5.2vw, 42px)/1.08 var(--serif);
+
+    letter-spacing: -0.035em;
+
+    opacity: 0;
+
+    transform: translateY(18px);
+
+    transition:
+      color 0.25s ease,
+      opacity 0.45s ease,
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .hero {
-    min-height: 680px;
+  .mobile-panel a:not(.button)::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+
+    bottom: 3px;
+
+    width: 28px;
+
+    height: 1px;
+
+    background: var(--gold);
+
+    transform: scaleX(0);
+
+    transform-origin: left;
+
+    transition: transform 0.3s ease;
+  }
+
+  .mobile-panel a:not(.button):hover,
+  .mobile-panel a:not(.button):focus-visible,
+  .mobile-panel a[aria-current] {
+    color: var(--light-gold);
+  }
+
+  .mobile-panel a:not(.button):hover::after,
+  .mobile-panel a:not(.button):focus-visible::after,
+  .mobile-panel a[aria-current]::after {
+    transform: scaleX(1);
+  }
+
+  .mobile-panel[aria-hidden="false"] a {
+    opacity: 1;
+
+    transform: none;
+  }
+
+  .mobile-panel[aria-hidden="false"] a:nth-child(1) {
+    transition-delay: 0.12s;
+  }
+
+  .mobile-panel[aria-hidden="false"] a:nth-child(2) {
+    transition-delay: 0.18s;
+  }
+
+  .mobile-panel[aria-hidden="false"] a:nth-child(3) {
+    transition-delay: 0.24s;
+  }
+
+  .mobile-panel[aria-hidden="false"] a:nth-child(4) {
+    transition-delay: 0.3s;
+  }
+
+  .mobile-panel[aria-hidden="false"] a:nth-child(5) {
+    transition-delay: 0.36s;
+  }
+
+  .mobile-panel[aria-hidden="false"] a:nth-child(6) {
+    transition-delay: 0.42s;
+  }
+
+  .mobile-panel[aria-hidden="false"] a:nth-child(7) {
+    transition-delay: 0.48s;
+  }
+
+  .mobile-panel__inner > .button {
+    position: relative;
+
+    width: min(100%, 280px);
+
+    margin-top: 26px;
+
+    opacity: 0;
+
+    transform: translateY(18px);
+
+    transition:
+      opacity 0.45s ease 0s,
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0s,
+      background-color 0.25s ease,
+      color 0.25s ease;
+  }
+
+  .mobile-panel__inner > .button::before {
+    content: "";
+
+    position: absolute;
+
+    top: -15px;
+
+    left: 0;
+
+    width: min(100%, 280px);
+
+    height: 1px;
+
+    background: rgba(201, 161, 90, 0.4);
+  }
+
+  .mobile-panel[aria-hidden="false"] .mobile-panel__inner > .button {
+    opacity: 1;
+
+    transform: none;
+
+    transition-delay: 0.54s, 0.54s, 0s, 0s;
   }
 
   .hero .shell {
-    padding: 150px 0 75px;
+    padding: clamp(120px, 18vh, 150px) 0 clamp(76px, 10vh, 96px);
+
+    padding: clamp(120px, 18svh, 150px) 0 clamp(76px, 10svh, 96px);
   }
 
   .hero-meta {
@@ -1613,6 +1819,12 @@ button {
     grid-template-columns: 1fr;
   }
 
+  .featured-head {
+    grid-template-columns: 1fr;
+
+    gap: 20px;
+  }
+
   .featured-project,
   .featured-project:nth-child(2) {
     min-height: 410px;
@@ -1648,9 +1860,18 @@ button {
   }
 
   .service-group {
-    grid-template-columns: 50px 1fr;
+    grid-template-columns: 50px minmax(0, 1fr);
 
     gap: 18px;
+  }
+
+  .service-group h2,
+  .service-group ul {
+    min-width: 0;
+  }
+
+  .service-group h2 {
+    font-size: clamp(28px, 8vw, 36px);
   }
 
   .service-group ul {
@@ -1998,7 +2219,7 @@ html.is-ready .page-hero .page-title > p {
   }
 }
 
-@media (max-width: 850px) {
+@media (max-width: 1024px) {
   .hero-actions .button {
     min-width: 170px;
   }
@@ -2007,13 +2228,6 @@ html.is-ready .page-hero .page-title > p {
     min-width: 44px;
 
     min-height: 44px;
-  }
-
-  .mobile-panel {
-    transition:
-      opacity 0.25s ease,
-      transform 0.25s ease,
-      visibility 0.25s;
   }
 
   .project-filter {
@@ -2041,13 +2255,11 @@ html.is-ready .page-hero .page-title > p {
   }
 
   .hero {
-    min-height: 640px;
-
     background-position: 58% center;
   }
 
   .hero .shell {
-    padding-top: 135px;
+    padding-top: clamp(108px, 17svh, 135px);
   }
 
   .hero-actions {
@@ -2056,6 +2268,11 @@ html.is-ready .page-hero .page-title > p {
 
   .hero-actions .button {
     width: 100%;
+  }
+
+  /* Stacked, full-width CTAs take priority over the decorative cue on narrow screens. */
+  .scroll-cue {
+    display: none;
   }
 
   .page-hero {
@@ -2068,6 +2285,15 @@ html.is-ready .page-hero .page-title > p {
 
   .footer-grid {
     gap: 30px;
+  }
+}
+
+/* At the smallest common mobile viewport, keep the complete message and CTAs in view. */
+@media (max-width: 360px) and (max-height: 600px) {
+  .hero h1 {
+    font-size: 32px;
+
+    letter-spacing: -0.06em;
   }
 }
 
